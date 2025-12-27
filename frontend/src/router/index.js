@@ -4,7 +4,10 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
-import Dashboard from '../views/Dashboard.vue'; // File yang baru saja kita buat
+// Gunakan impor dinamis untuk dashboard agar lebih ringan
+const UserDashboard = () => import('../views/dashboard/User.vue');
+const AdminDashboard = () => import('../views/dashboard/Admin.vue');
+const FieldDashboard = () => import('../views/dashboard/Field.vue');
 
 const routes = [
   {
@@ -24,11 +27,36 @@ const routes = [
     component: Register,
     meta: { guestOnly: true }
   },
+  // RUTE DASHBOARD UMUM (Bisa digunakan untuk pengalihan)
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: Dashboard,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
+    beforeEnter: (to, from, next) => {
+      const role = localStorage.getItem('role');
+      if (role === 'admin') next('/dashboard/admin');
+      else if (role === 'staff') next('/dashboard/field');
+      else next('/dashboard/user');
+    }
+  },
+  // RUTE SPESIFIK BERDASARKAN ROLE
+  {
+    path: '/dashboard/user',
+    name: 'UserDashboard',
+    component: UserDashboard,
+    meta: { requiresAuth: true, role: 'user' }
+  },
+  {
+    path: '/dashboard/field',
+    name: 'FieldDashboard',
+    component: FieldDashboard,
+    meta: { requiresAuth: true, role: 'staff' }
+  },
+  {
+    path: '/dashboard/admin',
+    name: 'AdminDashboard',
+    component: AdminDashboard,
+    meta: { requiresAuth: true, role: 'admin' }
   }
 ];
 
@@ -38,19 +66,31 @@ const router = createRouter({
 });
 
 /**
- * Penjaga Navigasi (Navigation Guard)
+ * Penjaga Navigasi (Navigation Guard) Terintegrasi
+ * Mengecek Login dan Hak Akses (Role)
  */
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
+  const userRole = localStorage.getItem('role');
   const isAuthenticated = !!token;
 
+  // 1. Cek jika rute butuh login tapi user belum login
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login');
-  } else if (to.meta.guestOnly && isAuthenticated) {
-    next('/dashboard');
-  } else {
-    next();
+    return next('/login');
   }
+
+  // 2. Cek jika rute khusus tamu (login/register) tapi user sudah login
+  if (to.meta.guestOnly && isAuthenticated) {
+    return next('/dashboard');
+  }
+
+  // 3. Cek Proteksi Role (Mencegah User masuk ke Admin)
+  if (to.meta.role && to.meta.role !== userRole) {
+    // Jika role tidak cocok, lempar ke dashboard masing-masing
+    return next('/dashboard');
+  }
+
+  next();
 });
 
 export default router;
