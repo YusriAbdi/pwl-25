@@ -2,7 +2,7 @@
  * Entry Point Utama - Website Donasi Kemanusiaan
  * PERBAIKAN: Menambahkan limit payload agar foto Base64 bisa terkirim.
  */
-
+const adminRoutes = require('./routes/adminRoutes');
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
@@ -11,6 +11,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const campaignRoutes = require('./routes/campaignRoutes');
 const donationRoutes = require('./routes/donationRoutes');
+
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(cors());
 app.use('/api/auth', authRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/donations', donationRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Root test route
 app.get('/', (req, res) => {

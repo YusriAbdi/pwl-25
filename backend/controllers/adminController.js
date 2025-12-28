@@ -2,120 +2,110 @@ const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 
 /**
- * MENGAMBIL STATISTIK RINGKASAN DASHBOARD
- * Menghitung angka-angka utama untuk kartu statistik di frontend.
+ * Mengambil Statistik Dashboard (Total Donasi, Donatur, dan Kampanye)
  */
-exports.getDashboardStats = async (req, res) => {
+exports.getStats = async (req, res) => {
     try {
-        // 1. Hitung Total Donasi yang Berhasil (verified)
-        const [donationRes] = await db.query(
-            'SELECT SUM(amount) as total FROM donations WHERE status = "verified"'
-        );
-
-        // 2. Hitung Jumlah Donatur Unik
-        const [donorRes] = await db.query(
-            'SELECT COUNT(DISTINCT user_id) as total FROM donations'
-        );
-
-        // 3. Hitung Jumlah Kampanye Aktif
-        const [campaignRes] = await db.query(
-            'SELECT COUNT(*) as total FROM campaigns WHERE status = "active"'
-        );
+        const [donations] = await db.query('SELECT SUM(amount) as total FROM donations WHERE status = "verified"');
+        const [donors] = await db.query('SELECT COUNT(DISTINCT user_id) as total FROM donations');
+        const [campaigns] = await db.query('SELECT COUNT(*) as total FROM campaigns WHERE status = "active"');
 
         res.json({
-            totalDonations: donationRes[0].total || 0,
-            totalDonors: donorRes[0].total || 0,
-            activeCampaigns: campaignRes[0].total || 0
+            totalDonations: donations[0].total || 0,
+            totalDonors: donors[0].total || 0,
+            activeCampaigns: campaigns[0].total || 0
         });
     } catch (error) {
-        console.error('Error Admin Stats:', error.message);
-        res.status(500).json({ message: 'Gagal memuat statistik dashboard' });
+        console.error('Error getStats:', error.message);
+        res.status(500).json({ message: 'Gagal memuat statistik platform' });
     }
 };
 
 /**
- * MANAJEMEN TIM: MENGAMBIL DAFTAR ANGGOTA
- * Hanya mengambil user dengan peran 'admin' atau 'staff'.
+ * Manajemen Tim: List Admin dan Petugas Lapangan
+ * Sinkron dengan ENUM 'field_worker' di database
  */
-exports.getManagementList = async (req, res) => {
+exports.getTeamList = async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT id, name, email, role, created_at FROM users WHERE role IN ("admin", "staff") ORDER BY role ASC, created_at DESC'
+            'SELECT id, name, email, role, created_at FROM users WHERE role IN ("admin", "field_worker") ORDER BY role ASC, created_at DESC'
         );
         res.json(rows);
     } catch (error) {
-        console.error('Error List Tim:', error.message);
-        res.status(500).json({ message: 'Gagal memuat daftar anggota tim' });
+        console.error('Error getTeamList:', error.message);
+        res.status(500).json({ message: 'Gagal memuat daftar tim operasional' });
     }
 };
 
 /**
- * MANAJEMEN TIM: TAMBAH ANGGOTA BARU
- * Admin bisa membuat akun baru untuk rekan admin atau petugas lapangan.
+ * Daftar Donatur: List user dengan role 'user'
+ */
+exports.getDonorList = async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            'SELECT id, name, email, role, created_at FROM users WHERE role = "user" ORDER BY created_at DESC'
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error('Error getDonorList:', error.message);
+        res.status(500).json({ message: 'Gagal memuat database donatur' });
+    }
+};
+
+/**
+ * Menambah Anggota Tim Baru
+ * Memperbaiki isu ENUM: 'staff' (frontend) -> 'field_worker' (database)
  */
 exports.addAccount = async (req, res) => {
     const { name, email, password, role } = req.body;
 
-    // Validasi input
     if (!name || !email || !password || !role) {
         return res.status(400).json({ message: 'Semua kolom wajib diisi' });
     }
 
-    // Validasi role agar tidak sembarang memasukkan peran lain
-    if (!['admin', 'staff'].includes(role)) {
-        return res.status(400).json({ message: 'Peran akun tidak valid (Harus admin atau staff)' });
-    }
+    // Mapping role frontend ke database ENUM
+    const dbRole = role === 'staff' ? 'field_worker' : role;
 
     try {
-        // Cek apakah email sudah terdaftar
         const [existing] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
         if (existing.length > 0) {
-            return res.status(400).json({ message: 'Email sudah terdaftar di sistem' });
+            return res.status(400).json({ message: 'Alamat email sudah terdaftar' });
         }
 
-        // Hash password untuk keamanan
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Simpan ke database
         await db.query(
             'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-            [name, email, hashedPassword, role]
+            [name, email, hashedPassword, dbRole]
         );
 
-        res.status(201).json({ message: `Akun ${role} berhasil dibuat untuk ${name}` });
+        res.status(201).json({ message: `Akun ${dbRole} berhasil dibuat` });
     } catch (error) {
-        console.error('Error Tambah Akun:', error.message);
-        res.status(500).json({ message: 'Gagal membuat akun tim baru' });
+        console.error('Error addAccount Detail:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan sistem saat membuat akun' });
     }
 };
 
 /**
- * MANAJEMEN TIM: HAPUS ANGGOTA
- * Menghapus akses anggota tim berdasarkan ID.
+ * Hapus Akun (Admin, Staff, atau Donatur)
  */
 exports.deleteAccount = async (req, res) => {
     const { id } = req.params;
-    const currentAdminId = req.user.id; // Diambil dari middleware authenticateToken
+    const currentAdminId = req.user.id;
 
     try {
-        // Keamanan: Admin tidak boleh menghapus dirinya sendiri
         if (parseInt(id) === currentAdminId) {
-            return res.status(400).json({ message: 'Anda tidak dapat menghapus akun Anda sendiri' });
+            return res.status(400).json({ message: 'Keamanan: Anda tidak bisa menghapus akun Anda sendiri' });
         }
 
-        // Jalankan perintah hapus
-        const [result] = await db.query(
-            'DELETE FROM users WHERE id = ? AND role IN ("admin", "staff")',
-            [id]
-        );
-
+        const [result] = await db.query('DELETE FROM users WHERE id = ?', [id]);
+        
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Akun tidak ditemukan atau bukan bagian dari tim' });
+            return res.status(404).json({ message: 'Akun tidak ditemukan' });
         }
 
-        res.json({ message: 'Anggota tim berhasil dihapus dari sistem' });
+        res.json({ message: 'Akun telah dihapus secara permanen' });
     } catch (error) {
-        console.error('Error Hapus Akun:', error.message);
-        res.status(500).json({ message: 'Terjadi kesalahan saat mencoba menghapus akun' });
+        console.error('Error deleteAccount:', error.message);
+        res.status(500).json({ message: 'Gagal menghapus akun' });
     }
 };
