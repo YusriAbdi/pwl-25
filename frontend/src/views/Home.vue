@@ -23,14 +23,7 @@
         <p class="text-lg md:text-xl opacity-90 mb-10 max-w-2xl mx-auto font-medium">
           Bergabunglah bersama kami untuk menciptakan perubahan nyata bagi ribuan nyawa yang membutuhkan di seluruh pelosok negeri.
         </p>
-        <div class="flex flex-col md:flex-row gap-4 justify-center">
-          <button @click="scrollToCampaign" class="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-xl font-bold text-lg transition shadow-lg active:scale-95">
-            Mulai Berdonasi
-          </button>
-          <button class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 px-8 py-4 rounded-xl font-bold text-lg transition">
-            Tentang Kami
-          </button>
-        </div>
+       
       </div>
     </section>
 
@@ -53,7 +46,7 @@
 
         <!-- Kampanye Sukses -->
         <div class="bg-white p-8 rounded-3xl shadow-xl flex items-center space-x-6 border border-slate-100 transform hover:-translate-y-2 transition duration-300">
-          <div class="bg-green-50 w-20 h-20 rounded-2xl flex items-center justify-center text-green-600 text-3xl">
+          <div class="bg-green-50 w-20 h-50 rounded-2xl flex items-center justify-center text-green-600 text-3xl">
             <i class="fas fa-check-circle"></i>
           </div>
           <div>
