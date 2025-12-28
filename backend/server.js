@@ -2,6 +2,8 @@
  * Entry Point Utama - Website Donasi Kemanusiaan
  * PERBAIKAN: Menambahkan limit payload agar foto Base64 bisa terkirim.
  */
+const apiRoutes = require('./routes/api');
+
 const adminRoutes = require('./routes/adminRoutes');
 const express = require('express');
 const cors = require('cors');
@@ -26,7 +28,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/admin', adminRoutes);
-
+app.use('/api', apiRoutes);
 // Root test route
 app.get('/', (req, res) => {
     res.send('API Humanity Care is Running...');

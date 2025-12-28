@@ -2,55 +2,50 @@ const jwt = require('jsonwebtoken');
 
 /**
  * Middleware: Verifikasi Token JWT
- * Memastikan pengguna sudah login sebelum mengakses rute tertentu.
+ * Kita ubah menjadi module.exports agar di api.js variabel 'auth' langsung menjadi FUNGSI.
  */
-exports.authenticateToken = (req, res, next) => {
+const auth = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-        return res.status(401).json({ message: 'Token tidak ditemukan, silakan login kembali' });
+        return res.status(401).json({ 
+            status: 'error',
+            message: 'Token tidak ditemukan, silakan login kembali' 
+        });
     }
 
     jwt.verify(token, process.env.JWT_SECRET || 'supersecret', (err, user) => {
         if (err) {
-            return res.status(403).json({ message: 'Sesi berakhir atau token tidak valid. Silakan login ulang.' });
+            return res.status(403).json({ 
+                status: 'error',
+                message: 'Sesi berakhir atau token tidak valid. Silakan login ulang.' 
+            });
         }
-        // Lampirkan data user (termasuk id, role, name) ke request agar bisa diakses controller
+        // Lampirkan data user ke request
         req.user = user;
         next();
     });
 };
 
 /**
- * Middleware: Otorisasi Berdasarkan Peran (Role)
- * Mendukung pengecekan banyak peran sekaligus (e.g., 'admin', 'field_worker').
+ * Jika Anda butuh fitur Role, kita tambahkan sebagai properti dari fungsi auth
  */
-exports.authorizeRole = (...roles) => {
+auth.authorizeRole = (...roles) => {
     return (req, res, next) => {
-        // Jika user tidak ada atau rolenya tidak terdaftar dalam daftar peran yang diizinkan
         if (!req.user || !roles.includes(req.user.role)) {
             return res.status(403).json({ 
-                message: `Akses ditolak: Peran '${req.user?.role || 'tanpa peran'}' tidak memiliki izin untuk akses ini.` 
+                status: 'error',
+                message: `Akses ditolak: Peran '${req.user?.role || 'tanpa peran'}' tidak memiliki izin.` 
             });
         }
         next();
     };
 };
 
-/**
- * ALIAS HELPER (Opsi Cepat)
- * Menambahkan alias yang sinkron dengan database (menggunakan 'field_worker' bukan 'staff')
- */
+// Aliases
+auth.isAdmin = auth.authorizeRole('admin');
+auth.isUser = auth.authorizeRole('user');
 
-// Hanya Administrator
-exports.isAdmin = exports.authorizeRole('admin');
-
-// Hanya Petugas Lapangan
-exports.isFieldWorker = exports.authorizeRole('field_worker');
-
-// Administrator ATAU Petugas Lapangan (Staff Operasional)
-exports.isStaffOrAdmin = exports.authorizeRole('admin', 'field_worker');
-
-// User Biasa / Donatur (User lama Anda)
-exports.isUser = exports.authorizeRole('user');
+// EKSPOR UTAMA (Agar variabel 'auth' di api.js menjadi fungsi)
+module.exports = auth;

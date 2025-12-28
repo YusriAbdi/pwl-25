@@ -1,22 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const adminController = require('../controllers/adminController');
-const { authenticateToken, isAdmin } = require('../middleware/auth');
+
+// Import Middleware
+// Karena kita sudah mengubah auth.js menggunakan module.exports = auth,
+// maka variabel 'auth' di sini sudah langsung berupa FUNGSI.
+const auth = require('../middleware/auth');
+
+// Contoh penggunaan di baris 10
+// Jika sebelumnya router.use(auth.authenticateToken), ubah menjadi:
+router.use(auth); 
+
+// Import Controller (Pastikan file ini ada)
+const campaignController = require('../controllers/campaignController');
 
 /**
- * Proteksi Global: 
- * Pengguna harus login dan memiliki peranan 'admin'.
+ * Rute khusus Admin
  */
-router.use(authenticateToken);
-router.use(isAdmin);
-
-// Definisi Rute API Admin (Pastikan nama fungsi controller padan)
-router.get('/stats', adminController.getStats);
-router.get('/management-list', adminController.getTeamList);
-router.get('/donors-list', adminController.getDonorList);
-
-// PEMBETULAN: Menggunakan addAccount dan deleteAccount sesuai export di controller
-router.post('/add-account', adminController.addAccount);
-router.delete('/delete-account/:id', adminController.deleteAccount);
+router.get('/dashboard-stats', auth, campaignController.getStats);
 
 module.exports = router;
