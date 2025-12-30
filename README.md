@@ -159,7 +159,8 @@ Sistem ini menggunakan database MySQL dengan relasi antar tabel sebagai berikut:
 
 ### 🗂️ Daftar Tabel
 
-![alt text](Screenshots/Humanitycare-ERD.png)
+<img width="1001" height="581" alt="Humanitycare-ERD" src="https://github.com/user-attachments/assets/81aa1475-2f7d-4c73-9792-8acb26a841aa" />
+
 
 ERD HumanityCare terdiri dari tiga entitas utama: users, campaigns, dan donations. Entitas users menyimpan data pengguna, campaigns merepresentasikan program donasi yang dibuat oleh pengguna, dan donations mencatat transaksi donasi ke suatu kampanye. Relasi antar entitas menunjukkan bahwa satu pengguna dapat membuat dan mendonasikan ke banyak kampanye, serta satu kampanye dapat menerima banyak donasi, sehingga proses pengelolaan donasi tercatat secara terstruktur.
 
