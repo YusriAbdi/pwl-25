@@ -153,6 +153,24 @@ Untuk endpoint yang diproteksi, sertakan **Header** seperti `Authorization: Bear
 
 Berikut merupakan dokumentasi pengujian REST API `HumanityCare` menggunakan `Postman` untuk memastikan setiap endpoint backend berjalan dengan baik sesuai prinsip `CRUD (Create, Read, Update, Delete)` serta mekanisme `JWT Authentication`.
 
+**Register User Baru**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7ff0c412-9a27-4bc5-9652-d47c128d94dc" />
+
+**Login(dengan token)**
+<img width="1920" height="1080" alt="image-1" src="https://github.com/user-attachments/assets/4ce2b9dc-c94c-4462-ad59-10e2437786d5" />
+
+**Read Data**
+<img width="1920" height="1080" alt="image2" src="https://github.com/user-attachments/assets/e62f06b3-304c-4e18-9e60-ca2351b7da3b" />
+
+**Update Data**
+<img width="1920" height="1080" alt="image-4" src="https://github.com/user-attachments/assets/bcd3c07a-f9c0-4887-8881-4de0809c3377" />
+
+**Protected Route**
+<img width="1920" height="1080" alt="image3" src="https://github.com/user-attachments/assets/25119789-0bce-46ff-bf06-76d6e624f071" />
+
+**Delete Data**
+<img width="1920" height="1080" alt="image-5" src="https://github.com/user-attachments/assets/cdedec86-0d6f-4744-9d0e-7bba60746dc1" />
+
 ## 9. Penjelasan ERD (Entity Relationship Diagram)
 
 Sistem ini menggunakan database MySQL dengan relasi antar tabel sebagai berikut:
