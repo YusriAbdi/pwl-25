@@ -153,34 +153,6 @@ Untuk endpoint yang diproteksi, sertakan **Header** seperti `Authorization: Bear
 
 Berikut merupakan dokumentasi pengujian REST API `HumanityCare` menggunakan `Postman` untuk memastikan setiap endpoint backend berjalan dengan baik sesuai prinsip `CRUD (Create, Read, Update, Delete)` serta mekanisme `JWT Authentication`.
 
-### Registrasi User/Donatur
-Menguji endpoint untuk mendaftarkan pengguna baru ke dalam sistem.
-<img width="1920" height="1080" alt="REGIS" src="https://github.com/user-attachments/assets/79e66aea-1a40-4dd4-9c8b-bfc7de21f74b" />
-
-### Login (Generate Token)
-Menguji proses login untuk mendapatkan **Token JWT** yang wajib digunakan untuk mengakses endpoint lainnya.
-<img width="1920" height="1080" alt="LOGIN" src="https://github.com/user-attachments/assets/36a449b8-85a2-47d1-af0b-3108830f4e55" />
-
-### Create Data (Buat Pengaduan)
-Mengirim data laporan baru (Judul, Deskripsi, Kategori) dengan menyertakan Token di header.
-<img width="1920" height="1080" alt="CREATE DATA" src="https://github.com/user-attachments/assets/d0a75ed6-8bd1-4970-a434-6527bf0145f5" />
-
-### Read List Data (Dashboard)
-Mengambil daftar semua laporan milik user yang sedang login.
-<img width="1920" height="1080" alt="READ LIST DATA" src="https://github.com/user-attachments/assets/51b68e37-68d5-453e-a7fe-e36204928345" />
-
-### Read Detail Data
-Mengambil detail lengkap dari satu laporan spesifik berdasarkan ID.
-<img width="1920" height="1080" alt="READ DETAIL DATA" src="https://github.com/user-attachments/assets/e4e2b241-2e27-45ec-91ff-e7caed4361f9" />
-
-### Update Data
-Mengedit judul atau deskripsi laporan yang sudah ada.
-<img width="1920" height="1080" alt="UPDATE DATA" src="https://github.com/user-attachments/assets/f3dd6c0f-33c6-41db-800e-b982d46e4db2" />
-
-### Protected Route (Uji Keamanan)
-Mencoba mengakses data tanpa Token, sistem harus menolak akses (Unauthorized).
-<img width="1920" height="1080" alt="PROTECTED ROUTE" src="https://github.com/user-attachments/assets/0bef2d89-da56-43f8-834a-a29623546da1" />
-
 ## 9. Penjelasan ERD (Entity Relationship Diagram)
 
 Sistem ini menggunakan database MySQL dengan relasi antar tabel sebagai berikut:
